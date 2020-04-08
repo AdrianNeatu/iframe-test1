@@ -32,32 +32,9 @@
 
     <script>
       (function(el) {
-        var $iframe = $(el);
-        var winUrl = window.location.toString();
-        var iframeSrc = $iframe.attr('src');
-        if (winUrl.indexOf('#') > -1) {
-          iframeSrc += winUrl.substring(winUrl.indexOf('#'));
-        }
-        $iframe.attr('src', iframeSrc);
-
-        var betslipButton = document.querySelector('.BetslipIndicator');
-        var betslipContent;
-
-        if (betslipButton) {
-          betslipButton.classList.add('NoSelections');
-          betslipButton.addEventListener('click', function () {
-            $iframe[0].contentWindow.postMessage({
-              type: 'GMCMS:goToBetslip',
-            }, '*');
-          });
-
-          betslipContent = betslipButton.querySelector('.BetslipIndicatorCounter');
-        } else {
-          console.warn('There is no betslip button available!');
-        }
-
         window.addEventListener("message", function (e) {
           console.info('event received',e.data);
+          var $iframe = $(el);
 
           var data = e.data;
 
@@ -68,6 +45,7 @@
             switch (type) {
               case 'OMFE:setIFrameHeight': {
                 if (payload > 0) {
+                  console.log('aaaa', $iframe);
                   $iframe.height(payload);
                 }
                 break;
@@ -111,26 +89,6 @@
                 window.scrollTo({
                   top: 0,
                 });
-                break;
-              }
-              case 'OMFE:updateBetslipSelectionsCount': {
-                if (payload.count) {
-                  betslipButton.classList.remove('NoSelections');
-                } else {
-                  betslipButton.classList.add('NoSelections');
-                }
-
-                betslipContent.innerText = payload.count || '';
-                break;
-              }
-              case 'OMFE:betslipInitialized': {
-                betslipButton.classList.add('BetslipVisible');
-
-                break;
-              }
-              case 'OMFE:betslipDestroyed': {
-                betslipButton.classList.remove('BetslipVisible');
-
                 break;
               }
               case 'OMFE:sessionTerminated': {
